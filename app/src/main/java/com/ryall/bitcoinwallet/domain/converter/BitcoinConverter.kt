@@ -3,8 +3,9 @@ package com.ryall.bitcoinwallet.domain.converter
 import com.ryall.bitcoinwallet.domain.model.ExchangeRates
 import java.math.BigDecimal
 import java.math.MathContext
+import javax.inject.Inject
 
-class BitcoinConverter {
+class BitcoinConverter @Inject constructor() {
 
     fun convert(
         amount: BigDecimal,
