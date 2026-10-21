@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.ZoneOffset
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -30,6 +32,7 @@ class WalletViewModel @Inject constructor(
     init {
         observeBitcoinAmount()
         fetchExchangeRates()
+        fetchDailyFluctuations()
     }
 
     private fun observeBitcoinAmount() {
@@ -121,4 +124,29 @@ class WalletViewModel @Inject constructor(
             it.copy(convertedBitcoin = converted)
         }
     }
+
+    private fun fetchDailyFluctuations() {
+        viewModelScope.launch {
+            val today = LocalDate.now(ZoneOffset.UTC)
+            val yesterday = today.minusDays(1)
+
+            try {
+                val fluctuations = walletRepository.getDailyFluctuations(
+                    startDate = yesterday.toString(),
+                    endDate = today.toString()
+                )
+
+                _uiState.update {
+                    it.copy(dailyFluctuations = fluctuations)
+                }
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (_: Exception) {
+                _uiState.update {
+                    it.copy(dailyFluctuations = emptyMap())
+                }
+            }
+        }
+    }
+
 }

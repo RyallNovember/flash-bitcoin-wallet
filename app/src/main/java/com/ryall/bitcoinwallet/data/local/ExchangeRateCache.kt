@@ -27,6 +27,11 @@ class ExchangeRateCache @Inject constructor(
         val AUD = stringPreferencesKey("aud_rate")
         val LAST_UPDATED = longPreferencesKey("last_updated")
 
+        val FLUCTUATION_DATE = stringPreferencesKey("fluctuation_date")
+        val FLUCTUATION_ZAR = stringPreferencesKey("fluctuation_zar")
+        val FLUCTUATION_USD = stringPreferencesKey("fluctuation_usd")
+        val FLUCTUATION_AUD = stringPreferencesKey("fluctuation_aud")
+
         const val CACHE_DURATION_MS = 60 * 60 * 1000L
     }
 
@@ -85,5 +90,61 @@ class ExchangeRateCache @Inject constructor(
     suspend fun getLastUpdated(): Long? {
         val preferences = context.exchangeRateDataStore.data.first()
         return preferences[LAST_UPDATED]
+    }
+
+    suspend fun hasFluctuationCacheForDate(date: String): Boolean {
+        val preferences = context.exchangeRateDataStore.data.first()
+        return preferences[FLUCTUATION_DATE] == date
+    }
+
+    suspend fun getCachedFluctuations(
+        date: String
+    ): Map<String, BigDecimal>? {
+        val preferences = context.exchangeRateDataStore.data.first()
+
+        if (preferences[FLUCTUATION_DATE] != date) {
+            return null
+        }
+
+        val result = mutableMapOf<String, BigDecimal>()
+
+        preferences[FLUCTUATION_ZAR]
+            ?.toBigDecimalOrNull()
+            ?.let { result["ZAR"] = it }
+
+        preferences[FLUCTUATION_USD]
+            ?.toBigDecimalOrNull()
+            ?.let { result["USD"] = it }
+
+        preferences[FLUCTUATION_AUD]
+            ?.toBigDecimalOrNull()
+            ?.let { result["AUD"] = it }
+
+        return result
+    }
+
+    suspend fun saveFluctuations(
+        date: String,
+        fluctuations: Map<String, BigDecimal>
+    ) {
+        context.exchangeRateDataStore.edit { preferences ->
+            preferences[FLUCTUATION_DATE] = date
+
+            preferences.remove(FLUCTUATION_ZAR)
+            preferences.remove(FLUCTUATION_USD)
+            preferences.remove(FLUCTUATION_AUD)
+
+            fluctuations["ZAR"]?.let {
+                preferences[FLUCTUATION_ZAR] = it.toPlainString()
+            }
+
+            fluctuations["USD"]?.let {
+                preferences[FLUCTUATION_USD] = it.toPlainString()
+            }
+
+            fluctuations["AUD"]?.let {
+                preferences[FLUCTUATION_AUD] = it.toPlainString()
+            }
+        }
     }
 }

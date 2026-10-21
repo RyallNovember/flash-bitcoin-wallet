@@ -3,6 +3,7 @@ package com.ryall.bitcoinwallet.presentation.wallet
 import com.ryall.bitcoinwallet.domain.converter.ConvertedBitcoin
 import com.ryall.bitcoinwallet.domain.model.ExchangeRates
 import com.ryall.bitcoinwallet.domain.model.RateSource
+import java.math.BigDecimal
 
 data class WalletUiState(
     val bitcoinAmount: String = "0",
@@ -11,5 +12,6 @@ data class WalletUiState(
     val exchangeRates: ExchangeRates? = null,
     val rateSource: RateSource? = null,
     val lastUpdated: Long? = null,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val dailyFluctuations: Map<String, BigDecimal> = emptyMap()
 )

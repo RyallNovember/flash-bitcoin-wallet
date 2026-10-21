@@ -79,21 +79,28 @@ fun WalletScreen(
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
+
         CurrencyValueCard(
             currencyCode = "ZAR",
             currencyName = "South African Rand",
-            value = converted?.zar
+            value = converted?.zar,
+            dailyChangePercent = uiState.dailyFluctuations["ZAR"]
         )
+
         CurrencyValueCard(
             currencyCode = "USD",
             currencyName = "US Dollar",
-            value = converted?.usd
+            value = converted?.usd,
+            dailyChangePercent = uiState.dailyFluctuations["USD"]
         )
+
         CurrencyValueCard(
             currencyCode = "AUD",
             currencyName = "Australian Dollar",
-            value = converted?.aud
+            value = converted?.aud,
+            dailyChangePercent = uiState.dailyFluctuations["AUD"]
         )
+
         if (uiState.isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.CenterHorizontally)
